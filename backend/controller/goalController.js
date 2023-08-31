@@ -1,35 +1,56 @@
 const asyncHandler = require('express-async-handler');
+const Goal = require('../model/goalModel');
 
 // @access private
 // @route GET /api/goals
 // @desc get goals
-const getGoals = asyncHandler(async(req, res) => {
-    res.status(200).json({message: 'Get goals'})
+const getGoal = asyncHandler(async(req, res) => {
+    const goals = await Goal.find()
+    res.status(200).json(goals)
 })
 // @access private
 // @route POST /api/goals
 // @desc set goals
-const setGoals = asyncHandler(async(req, res) => {
+const setGoal = asyncHandler(async(req, res) => {
     if(!req.body.text) {
         res.status(400);
         throw new Error('Please add a text field to the request')
     }
-    res.status(200).json({message: 'Set goals'})
+    const goal = await Goal.create({
+        text: req.body.text
+    })
+    res.status(200).json(goal)
 })
 
 // @access private
 // @route PUT /api/goals/:id
 // @desc update goals
-const updateGoals = asyncHandler(async(req, res) => {
-    res.status(200).json({message: `Update goal ${req.params.id}`})
+const updateGoal = asyncHandler(async(req, res) => {
+    const goal = await Goal.findById(req.params.id)
+    if(!goal) {
+        res.status(400)
+        throw new Error('Goal not found')
+    }
+
+    const updatedGoal = await Goal.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+    })
+    res.status(200).json(updatedGoal)
 })
 
 
 // @access private
 // @route DELETE /api/goals/:id
 // @desc delete goals
-const deleteGoals = asyncHandler(async(req, res) => {
-    res.status(200).json({message: `Delete goal ${req.params.id}`})
+const deleteGoal = asyncHandler(async(req, res) => {
+    const goal = await Goal.findById(req.params.id)
+    if(!goal) {
+        res.status(400)
+        throw new Error('Goal not found')
+    }
+    await Goal.findByIdAndRemove(req.params.id)
+
+    res.status(200).json({id: req.params.id})
 })
 
-module.exports = { getGoals, setGoals, deleteGoals, updateGoals }
+module.exports = { getGoal, setGoal, deleteGoal, updateGoal }
