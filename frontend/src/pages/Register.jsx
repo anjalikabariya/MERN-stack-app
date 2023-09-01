@@ -30,7 +30,9 @@ function Register() {
     if (isSuccess || user) {
       navigate("/");
     }
-    dispatch(reset());
+    return () => {
+      dispatch(reset());
+    };
   }, [isError, message, isSuccess, isLoading, navigate, dispatch, user]);
 
   const onChange = (e) => {
